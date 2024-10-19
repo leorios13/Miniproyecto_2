@@ -4,6 +4,7 @@ import com.example.miniproyecto_2.models.Sudoku;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import javafx.scene.layout.Border;
@@ -30,83 +31,108 @@ public class GameController {
 
     @FXML
     void onActionPlayButton(ActionEvent event) throws IOException {
-        System.out.println("Play button pressed");
+        // Crear una alerta de confirmación
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmación de nuevo juego");
+        alert.setHeaderText(null);
+        alert.setContentText("¿Desea empezar un juego nuevo?");
 
-        // Restablecer el estado de todos los TextFields (limpiar colores y desbloquear)
-        resetBoard();
+        // Botones "Sí" y "No"
+        ButtonType buttonYes = new ButtonType("Sí");
+        ButtonType buttonNo = new ButtonType("No");
 
-        new_sudoku = new Sudoku();
-        new_sudoku.generateSudoku(); // Genera el sudoku completo
-        ArrayList<ArrayList<Integer>> sudokuMatrix = new_sudoku.getSudoku();
+        // Añadir los botones a la alerta
+        alert.getButtonTypes().setAll(buttonYes, buttonNo);
 
-        // Crear un ArrayList de TextFields para mapear los TextFields con la matriz del Sudoku
-        ArrayList<ArrayList<TextField>> textFields = new ArrayList<>();
+        // Mostrar la alerta y esperar la respuesta del usuario
+        alert.showAndWait().ifPresent(response -> {
+            if (response == buttonYes) {
+                // Si elige "Sí", comienza un nuevo juego
+                System.out.println("Play button pressed");
 
-        textFields.add(new ArrayList<>(List.of(p_00, p_01, p_02, p_03, p_04, p_05)));
-        textFields.add(new ArrayList<>(List.of(p_10, p_11, p_12, p_13, p_14, p_15)));
-        textFields.add(new ArrayList<>(List.of(p_20, p_21, p_22, p_23, p_24, p_25)));
-        textFields.add(new ArrayList<>(List.of(p_30, p_31, p_32, p_33, p_34, p_35)));
-        textFields.add(new ArrayList<>(List.of(p_40, p_41, p_42, p_43, p_44, p_45)));
-        textFields.add(new ArrayList<>(List.of(p_50, p_51, p_52, p_53, p_54, p_55)));
+                // Restablecer el estado de todos los TextFields (limpiar colores y desbloquear)
+                resetBoard();
 
-        // Mostrar 2 números por cuadrante de 2x3 aleatoriamente y bloquear esos TextFields
-        Random random = new Random();
-        ArrayList<Integer> visiblePositions;
+                new_sudoku = new Sudoku();
+                new_sudoku.generateSudoku(); // Genera el sudoku completo
+                ArrayList<ArrayList<Integer>> sudokuMatrix = new_sudoku.getSudoku();
 
-        for (int rowQuadrant = 0; rowQuadrant < 6; rowQuadrant += 2) {
-            for (int colQuadrant = 0; colQuadrant < 6; colQuadrant += 3) {
-                visiblePositions = new ArrayList<>();
-                // Elegir aleatoriamente 2 posiciones únicas en cada cuadrante
-                while (visiblePositions.size() < 2) {
-                    int pos = random.nextInt(6); // 0-5 (cuadrante de 2x3)
-                    if (!visiblePositions.contains(pos)) {
-                        visiblePositions.add(pos);
-                    }
-                }
+                // Crear un ArrayList de TextFields para mapear los TextFields con la matriz del Sudoku
+                ArrayList<ArrayList<TextField>> textFields = new ArrayList<>();
 
-                for (int k = 0; k < 6; k++) {
-                    int row = rowQuadrant + k / 3; // Calcula la fila en el cuadrante
-                    int col = colQuadrant + k % 3; // Calcula la columna en el cuadrante
+                textFields.add(new ArrayList<>(List.of(p_00, p_01, p_02, p_03, p_04, p_05)));
+                textFields.add(new ArrayList<>(List.of(p_10, p_11, p_12, p_13, p_14, p_15)));
+                textFields.add(new ArrayList<>(List.of(p_20, p_21, p_22, p_23, p_24, p_25)));
+                textFields.add(new ArrayList<>(List.of(p_30, p_31, p_32, p_33, p_34, p_35)));
+                textFields.add(new ArrayList<>(List.of(p_40, p_41, p_42, p_43, p_44, p_45)));
+                textFields.add(new ArrayList<>(List.of(p_50, p_51, p_52, p_53, p_54, p_55)));
 
-                    if (visiblePositions.contains(k)) {
-                        // Mostrar valor y bloquear el TextField
-                        textFields.get(row).get(col).setText(String.valueOf(sudokuMatrix.get(row).get(col)));
-                        textFields.get(row).get(col).setEditable(false);
-                        textFields.get(row).get(col).setStyle("-fx-background-color: lightgray;");
-                    } else {
-                        // Dejar vacío y habilitar el TextField para que el usuario pueda ingresar
-                        textFields.get(row).get(col).setText("");
-                        textFields.get(row).get(col).setEditable(true);
-                        final int r = row, c = col;
+                // Mostrar 2 números por cuadrante de 2x3 aleatoriamente y bloquear esos TextFields
+                Random random = new Random();
+                ArrayList<Integer> visiblePositions;
 
-                        // Agregar listener para verificar el valor ingresado por el usuario
-                        textFields.get(r).get(c).textProperty().addListener((observable, oldValue, newValue) -> {
-                            if (!newValue.isEmpty()) {
-                                try {
-                                    int value = Integer.parseInt(newValue);
-                                    if (value == sudokuMatrix.get(r).get(c)) {
-                                        // Si el valor es correcto, quitar el borde rojo
-                                        textFields.get(r).get(c).setBorder(null);
-                                        checkIfSolved(textFields, sudokuMatrix); // Verificar si el sudoku está resuelto
-                                    } else {
-                                        // Si el valor es incorrecto, poner borde rojo
-                                        textFields.get(r).get(c).setBorder(new Border(new BorderStroke(Color.RED,
-                                                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-                                    }
-                                } catch (NumberFormatException e) {
-                                    // Si el valor no es un número válido, poner borde rojo
-                                    textFields.get(r).get(c).setBorder(new Border(new BorderStroke(Color.RED,
-                                            BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-                                }
-                            } else {
-                                // Si el campo queda vacío nuevamente, quitar el borde rojo
-                                textFields.get(r).get(c).setBorder(null);
+                for (int rowQuadrant = 0; rowQuadrant < 6; rowQuadrant += 2) {
+                    for (int colQuadrant = 0; colQuadrant < 6; colQuadrant += 3) {
+                        visiblePositions = new ArrayList<>();
+                        // Elegir aleatoriamente 2 posiciones únicas en cada cuadrante
+                        while (visiblePositions.size() < 2) {
+                            int pos = random.nextInt(6); // 0-5 (cuadrante de 2x3)
+                            if (!visiblePositions.contains(pos)) {
+                                visiblePositions.add(pos);
                             }
-                        });
+                        }
+
+                        for (int k = 0; k < 6; k++) {
+                            int row = rowQuadrant + k / 3; // Calcula la fila en el cuadrante
+                            int col = colQuadrant + k % 3; // Calcula la columna en el cuadrante
+
+                            if (visiblePositions.contains(k)) {
+                                // Mostrar valor y bloquear el TextField
+                                textFields.get(row).get(col).setText(String.valueOf(sudokuMatrix.get(row).get(col)));
+                                textFields.get(row).get(col).setEditable(false);
+                                textFields.get(row).get(col).setStyle("-fx-background-color: lightgray;");
+                            } else {
+                                // Dejar vacío y habilitar el TextField para que el usuario pueda ingresar
+                                textFields.get(row).get(col).setText("");
+                                textFields.get(row).get(col).setEditable(true);
+                                final int r = row, c = col;
+
+                                // Agregar listener para verificar el valor ingresado por el usuario
+                                textFields.get(r).get(c).textProperty().addListener((observable, oldValue, newValue) -> {
+                                    if (!newValue.isEmpty()) {
+                                        try {
+                                            int value = Integer.parseInt(newValue);
+                                            if (value == sudokuMatrix.get(r).get(c)) {
+                                                // Si el valor es correcto, quitar el borde rojo
+                                                textFields.get(r).get(c).setBorder(null);
+                                                checkIfSolved(textFields, sudokuMatrix); // Verificar si el sudoku está resuelto
+                                            } else {
+                                                // Si el valor es incorrecto, poner borde rojo
+                                                textFields.get(r).get(c).setBorder(new Border(new BorderStroke(Color.RED,
+                                                        BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+                                            }
+                                        } catch (NumberFormatException e) {
+                                            // Si el valor no es un número válido, mostrar un mensaje de error
+                                            showError("Entrada no válida", "Por favor, ingrese solo números entre 1 y 6.");
+                                            // Limpiar el campo o restablecer a su estado anterior
+                                            textFields.get(r).get(c).setText(oldValue);
+                                            textFields.get(r).get(c).setBorder(new Border(new BorderStroke(Color.RED,
+                                                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+                                        }
+                                    } else {
+                                        // Si el campo queda vacío nuevamente, quitar el borde rojo
+                                        textFields.get(r).get(c).setBorder(null);
+                                    }
+                                });
+                            }
+                        }
                     }
                 }
+            } else {
+                // Si elige "No", no se genera un nuevo juego
+                System.out.println("El usuario decidió no iniciar un nuevo juego.");
             }
-        }
+        });
     }
 
     private void resetBoard() {
@@ -145,6 +171,65 @@ public class GameController {
         alert.setTitle("¡Felicidades!");
         alert.setHeaderText(null);
         alert.setContentText("¡Has resuelto el Sudoku correctamente!");
+        alert.showAndWait();
+    }
+
+    @FXML
+    void OnActionHelpButton(ActionEvent event) throws IOException {
+        // Crear un ArrayList de todos los TextFields y el Sudoku generado
+        ArrayList<ArrayList<TextField>> textFields = new ArrayList<>();
+        textFields.add(new ArrayList<>(List.of(p_00, p_01, p_02, p_03, p_04, p_05)));
+        textFields.add(new ArrayList<>(List.of(p_10, p_11, p_12, p_13, p_14, p_15)));
+        textFields.add(new ArrayList<>(List.of(p_20, p_21, p_22, p_23, p_24, p_25)));
+        textFields.add(new ArrayList<>(List.of(p_30, p_31, p_32, p_33, p_34, p_35)));
+        textFields.add(new ArrayList<>(List.of(p_40, p_41, p_42, p_43, p_44, p_45)));
+        textFields.add(new ArrayList<>(List.of(p_50, p_51, p_52, p_53, p_54, p_55)));
+
+        ArrayList<ArrayList<Integer>> sudokuMatrix = new_sudoku.getSudoku();
+
+        // Crear una lista de las celdas vacías donde el usuario necesita sugerencias
+        List<TextField> emptyCells = new ArrayList<>();
+        for (int i = 0; i < 6; i++) {
+            for (int j = 0; j < 6; j++) {
+                if (textFields.get(i).get(j).getText().isEmpty()) {
+                    emptyCells.add(textFields.get(i).get(j));
+                }
+            }
+        }
+
+        if (emptyCells.isEmpty()) {
+            // Si no hay celdas vacías, mostrar un mensaje de que no hay ayuda disponible
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Sin ayuda disponible");
+            alert.setHeaderText(null);
+            alert.setContentText("No hay celdas vacías en las que ofrecer ayuda.");
+            alert.showAndWait();
+            return;
+        }
+
+        // Elegir aleatoriamente una celda vacía para sugerir el número correcto
+        Random random = new Random();
+        TextField randomEmptyCell = emptyCells.get(random.nextInt(emptyCells.size()));
+
+        // Encontrar la posición de la celda en la matriz y mostrar el número correcto
+        for (int i = 0; i < 6; i++) {
+            for (int j = 0; j < 6; j++) {
+                if (textFields.get(i).get(j) == randomEmptyCell) {
+                    // Mostrar el número correcto en la celda vacía seleccionada
+                    randomEmptyCell.setText(String.valueOf(sudokuMatrix.get(i).get(j)));
+                    randomEmptyCell.setEditable(false);
+                    randomEmptyCell.setStyle("-fx-background-color: lightgreen;"); // Colorear la celda sugerida en verde
+                    return;
+                }
+            }
+        }
+    }
+
+    private void showError(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
         alert.showAndWait();
     }
 }

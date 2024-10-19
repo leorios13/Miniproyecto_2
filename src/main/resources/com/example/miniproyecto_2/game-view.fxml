@@ -142,7 +142,7 @@
          <font>
             <Font name="System Bold" size="16.0" />
          </font></Button>
-      <Button layoutX="443.0" layoutY="23.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="71.0" text="Ayuda" />
+      <Button layoutX="443.0" layoutY="23.0" mnemonicParsing="false" onAction="#OnActionHelpButton" prefHeight="39.0" prefWidth="71.0" text="Ayuda" />
       <Label alignment="CENTER" contentDisplay="BOTTOM" layoutX="195.0" layoutY="28.0" prefHeight="17.0" prefWidth="143.0" text="SUDOKU 6X6" textAlignment="CENTER">
          <font>
             <Font name="System Bold" size="20.0" />
