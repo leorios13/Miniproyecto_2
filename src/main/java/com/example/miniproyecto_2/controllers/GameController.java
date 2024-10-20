@@ -25,7 +25,7 @@ import java.util.Random;
  */
 public class GameController {
     private Sudoku new_sudoku; // Objeto Sudoku que representa el juego actual
-    private int cont_ayuda = 4;
+    private int cont_ayuda = 0;
     @FXML
     // Definición de los TextFields que representan las celdas del Sudoku
     private TextField p_00, p_01, p_02, p_03, p_04, p_05,
@@ -44,6 +44,7 @@ public class GameController {
      */
     @FXML
     void onActionPlayButton(ActionEvent event) throws IOException {
+        cont_ayuda = 4;
         // Crear una alerta de confirmación
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Confirmación de nuevo juego");
