@@ -25,7 +25,7 @@ import java.util.Random;
  */
 public class GameController {
     private Sudoku new_sudoku; // Objeto Sudoku que representa el juego actual
-
+    private int cont_ayuda = 4;
     @FXML
     // Definición de los TextFields que representan las celdas del Sudoku
     private TextField p_00, p_01, p_02, p_03, p_04, p_05,
@@ -103,7 +103,7 @@ public class GameController {
                                 // Mostrar valor y bloquear el TextField
                                 textFields.get(row).get(col).setText(String.valueOf(sudokuMatrix.get(row).get(col)));
                                 textFields.get(row).get(col).setEditable(false);
-                                textFields.get(row).get(col).setStyle("-fx-background-color: lightgray;");
+                                textFields.get(row).get(col).setStyle("-fx-background-color: lightgray; -fx-border-color: transparent; -fx-focus-color: transparent;");
                             } else {
                                 // Dejar vacío y habilitar el TextField para que el usuario pueda ingresar
                                 textFields.get(row).get(col).setText("");
@@ -115,7 +115,16 @@ public class GameController {
                                     if (!newValue.isEmpty()) {
                                         try {
                                             int value = Integer.parseInt(newValue);
-                                            if (value == sudokuMatrix.get(r).get(c)) {
+
+                                            // Verificar si el número está entre 1 y 6
+                                            if (value < 1 || value > 6) {
+                                                // Si el número no está en el rango de 1 a 6, mostrar un mensaje de error
+                                                showError("Entrada no válida", "Por favor, ingrese solo números entre 1 y 6.");
+                                                // Restablecer a su estado anterior
+                                                textFields.get(r).get(c).setText(oldValue);
+                                                textFields.get(r).get(c).setBorder(new Border(new BorderStroke(Color.RED,
+                                                        BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+                                            } else if (value == sudokuMatrix.get(r).get(c)) {
                                                 // Si el valor es correcto, quitar el borde rojo
                                                 textFields.get(r).get(c).setBorder(null);
                                                 checkIfSolved(textFields, sudokuMatrix); // Verificar si el sudoku está resuelto
@@ -205,52 +214,62 @@ public class GameController {
      */
     @FXML
     void OnActionHelpButton(ActionEvent event) throws IOException {
-        // Crear un ArrayList de todos los TextFields y el Sudoku generado
-        ArrayList<ArrayList<TextField>> textFields = new ArrayList<>();
-        textFields.add(new ArrayList<>(List.of(p_00, p_01, p_02, p_03, p_04, p_05)));
-        textFields.add(new ArrayList<>(List.of(p_10, p_11, p_12, p_13, p_14, p_15)));
-        textFields.add(new ArrayList<>(List.of(p_20, p_21, p_22, p_23, p_24, p_25)));
-        textFields.add(new ArrayList<>(List.of(p_30, p_31, p_32, p_33, p_34, p_35)));
-        textFields.add(new ArrayList<>(List.of(p_40, p_41, p_42, p_43, p_44, p_45)));
-        textFields.add(new ArrayList<>(List.of(p_50, p_51, p_52, p_53, p_54, p_55)));
+        if (cont_ayuda>=1){
+            cont_ayuda--;
+            // Crear un ArrayList de todos los TextFields y el Sudoku generado
+            ArrayList<ArrayList<TextField>> textFields = new ArrayList<>();
+            textFields.add(new ArrayList<>(List.of(p_00, p_01, p_02, p_03, p_04, p_05)));
+            textFields.add(new ArrayList<>(List.of(p_10, p_11, p_12, p_13, p_14, p_15)));
+            textFields.add(new ArrayList<>(List.of(p_20, p_21, p_22, p_23, p_24, p_25)));
+            textFields.add(new ArrayList<>(List.of(p_30, p_31, p_32, p_33, p_34, p_35)));
+            textFields.add(new ArrayList<>(List.of(p_40, p_41, p_42, p_43, p_44, p_45)));
+            textFields.add(new ArrayList<>(List.of(p_50, p_51, p_52, p_53, p_54, p_55)));
 
-        ArrayList<ArrayList<Integer>> sudokuMatrix = new_sudoku.getSudoku();
+            ArrayList<ArrayList<Integer>> sudokuMatrix = new_sudoku.getSudoku();
 
-        // Crear una lista de las celdas vacías donde el usuario necesita sugerencias
-        List<TextField> emptyCells = new ArrayList<>();
-        for (int i = 0; i < 6; i++) {
-            for (int j = 0; j < 6; j++) {
-                if (textFields.get(i).get(j).getText().isEmpty()) {
-                    emptyCells.add(textFields.get(i).get(j));
+            // Crear una lista de las celdas vacías donde el usuario necesita sugerencias
+            List<TextField> emptyCells = new ArrayList<>();
+            for (int i = 0; i < 6; i++) {
+                for (int j = 0; j < 6; j++) {
+                    if (textFields.get(i).get(j).getText().isEmpty()) {
+                        emptyCells.add(textFields.get(i).get(j));
+                    }
+                }
+            }
+
+            if (emptyCells.isEmpty()) {
+                // Si no hay celdas vacías, mostrar un mensaje de que no hay ayuda disponible
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Sin ayuda disponible");
+                alert.setHeaderText(null);
+                alert.setContentText("No hay celdas vacías en las que ofrecer ayuda.");
+                alert.showAndWait();
+                return;
+            }
+
+            // Elegir aleatoriamente una celda vacía para sugerir el número correcto
+            Random random = new Random();
+            TextField randomEmptyCell = emptyCells.get(random.nextInt(emptyCells.size()));
+
+            // Encontrar la posición de la celda en la matriz y mostrar el número correcto
+            for (int i = 0; i < 6; i++) {
+                for (int j = 0; j < 6; j++) {
+                    if (textFields.get(i).get(j) == randomEmptyCell) {
+                        // Mostrar el número correcto en la celda vacía seleccionada
+                        randomEmptyCell.setText(String.valueOf(sudokuMatrix.get(i).get(j)));
+                        randomEmptyCell.setEditable(false);
+                        randomEmptyCell.setStyle("-fx-background-color: lightgreen;"); // Colorear la celda sugerida en verde
+                        return;
+                    }
                 }
             }
         }
-
-        if (emptyCells.isEmpty()) {
-            // Si no hay celdas vacías, mostrar un mensaje de que no hay ayuda disponible
+        else{
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Sin ayuda disponible");
             alert.setHeaderText(null);
-            alert.setContentText("No hay celdas vacías en las que ofrecer ayuda.");
+            alert.setContentText("Se le acabaron las ayudas.");
             alert.showAndWait();
-            return;
-        }
-
-        // Elegir aleatoriamente una celda vacía para sugerir el número correcto
-        Random random = new Random();
-        TextField randomEmptyCell = emptyCells.get(random.nextInt(emptyCells.size()));
-
-        // Encontrar la posición de la celda en la matriz y mostrar el número correcto
-        for (int i = 0; i < 6; i++) {
-            for (int j = 0; j < 6; j++) {
-                if (textFields.get(i).get(j) == randomEmptyCell) {
-                    // Mostrar el número correcto en la celda vacía seleccionada
-                    randomEmptyCell.setText(String.valueOf(sudokuMatrix.get(i).get(j)));
-                    randomEmptyCell.setEditable(false);
-                    randomEmptyCell.setStyle("-fx-background-color: lightgreen;"); // Colorear la celda sugerida en verde
-                    return;
-                }
-            }
         }
     }
 
