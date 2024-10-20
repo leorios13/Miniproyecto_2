@@ -9,7 +9,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 /**
- * Autor: Leonardo Rios Saavedra
+ * @author Leonardo Rios Saavedra
  * Código: 2310129
  * Clase principal para iniciar la aplicación de Sudoku.
  * Extiende la clase Application de JavaFX.
