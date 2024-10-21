@@ -1,6 +1,7 @@
 package com.example.miniproyecto_2.controllers;
 
 import com.example.miniproyecto_2.models.Sudoku;
+import com.example.miniproyecto_2.view.alert.AlertBox;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -120,7 +121,11 @@ public class GameController {
                                             // Verificar si el número está entre 1 y 6
                                             if (value < 1 || value > 6) {
                                                 // Si el número no está en el rango de 1 a 6, mostrar un mensaje de error
-                                                showError("Entrada no válida", "Por favor, ingrese solo números entre 1 y 6.");
+                                                new AlertBox().showError(
+                                                        "Entrada no válida",
+                                                        null,
+                                                        "Por favor, ingrese solo números entre 1 y 6."
+                                                );
                                                 // Restablecer a su estado anterior
                                                 textFields.get(r).get(c).setText(oldValue);
                                                 textFields.get(r).get(c).setBorder(new Border(new BorderStroke(Color.RED,
@@ -136,7 +141,11 @@ public class GameController {
                                             }
                                         } catch (NumberFormatException e) {
                                             // Si el valor no es un número válido, mostrar un mensaje de error
-                                            showError("Entrada no válida", "Por favor, ingrese solo números entre 1 y 6.");
+                                            new AlertBox().showError(
+                                                    "Entrada no válida",
+                                                    null,
+                                                    "Por favor, ingrese solo números entre 1 y 6."
+                                            );
                                             // Limpiar el campo o restablecer a su estado anterior
                                             textFields.get(r).get(c).setText(oldValue);
                                             textFields.get(r).get(c).setBorder(new Border(new BorderStroke(Color.RED,
@@ -197,13 +206,12 @@ public class GameController {
                 }
             }
         }
-
         // Si el Sudoku está resuelto correctamente, mostrar mensaje de ganador
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("¡Felicidades!");
-        alert.setHeaderText(null);
-        alert.setContentText("¡Has resuelto el Sudoku correctamente!");
-        alert.showAndWait();
+        new AlertBox().showAlert(
+                "Ganaste",
+                "¡Felicidades!",
+                "¡Has resuelto el sudoku correctamente!"
+        );
     }
 
     /**
@@ -240,11 +248,11 @@ public class GameController {
 
             if (emptyCells.isEmpty()) {
                 // Si no hay celdas vacías, mostrar un mensaje de que no hay ayuda disponible
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Sin ayuda disponible");
-                alert.setHeaderText(null);
-                alert.setContentText("No hay celdas vacías en las que ofrecer ayuda.");
-                alert.showAndWait();
+                new AlertBox().showAlert(
+                        "Sin ayuda disponible",
+                        null,
+                        "Se le acabaron las ayudas"
+                );
                 return;
             }
 
@@ -266,11 +274,11 @@ public class GameController {
             }
         }
         else{
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Sin ayuda disponible");
-            alert.setHeaderText(null);
-            alert.setContentText("Se le acabaron las ayudas.");
-            alert.showAndWait();
+            new AlertBox().showAlert(
+                    "Sin ayuda disponible",
+                    null,
+                    "Se le acabaron las ayudas"
+            );
         }
     }
 

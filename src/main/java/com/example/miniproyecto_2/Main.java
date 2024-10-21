@@ -4,8 +4,6 @@ import com.example.miniproyecto_2.view.GameView;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
-import javafx.application.Application;
-import javafx.stage.Stage;
 import java.io.IOException;
 
 /**
