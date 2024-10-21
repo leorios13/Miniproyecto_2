@@ -281,18 +281,4 @@ public class GameController {
             );
         }
     }
-
-    /**
-     * Muestra un mensaje de error al usuario.
-     *
-     * @param title El título de la alerta de error.
-     * @param message El mensaje de error que se mostrará al usuario.
-     */
-    private void showError(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
 }
